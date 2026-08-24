@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa Interativo — Orientação Empreendedora nos PPGs em Administração</title>
+
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIINfQ3jB4Xw8L0qH5y3h4b5V5cG5q4G5q8="
+        crossorigin=""/>
+
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --panel:#ffffff;
+      --border:#dfe5eb;
+      --text:#172033;
+      --muted:#64748b;
+      --accent:#315f7a;
+      --low:#94a3b8;
+      --mid:#4f83a8;
+      --high:#9a6a3a;
+      --shadow:0 8px 24px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:var(--bg);
+    }
+    header{
+      background:#fff;
+      border-bottom:1px solid var(--border);
+      padding:22px 28px 18px;
+    }
+    .header-inner{
+      max-width:1500px;
+      margin:auto;
+      display:flex;
+      justify-content:space-between;
+      gap:20px;
+      align-items:flex-end;
+    }
+    h1{
+      margin:0;
+      font-size:25px;
+      line-height:1.15;
+      letter-spacing:-.02em;
+    }
+    .subtitle{
+      margin-top:7px;
+      color:var(--muted);
+      font-size:14px;
+    }
+    .badge{
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      color:#475569;
+      background:#f8fafc;
+      white-space:nowrap;
+    }
+    main{
+      max-width:1500px;
+      margin:18px auto;
+      padding:0 18px 24px;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.65fr) minmax(340px,.75fr);
+      gap:16px;
+      align-items:start;
+    }
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+    }
+    .map-panel{padding:10px}
+    #map{
+      height:650px;
+      width:100%;
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .map-footer{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px 20px;
+      padding:10px 5px 2px;
+      font-size:11px;
+      color:var(--muted);
+      align-items:center;
+    }
+    .legend-dot{
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      margin-right:5px;
+      vertical-align:-1px;
+    }
+    .side{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      min-width:0;
+    }
+    .card{padding:19px}
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .institution{
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:-.02em;
+    }
+    .location{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .rank{
+      padding:6px 9px;
+      border-radius:8px;
+      background:#f1f5f9;
+      color:#475569;
+      font-size:12px;
+      white-space:nowrap;
+      border:1px solid #e2e8f0;
+    }
+    .headline{
+      margin:18px 0 15px;
+      padding:14px;
+      background:#f7f9fb;
+      border-radius:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:flex-end;
+    }
+    .label{
+      color:var(--muted);
+      font-size:11px;
+    }
+    .oe{
+      font-size:34px;
+      line-height:1;
+      margin-top:5px;
+      font-weight:850;
+    }
+    .capes{
+      color:#475569;
+      font-size:12px;
+      text-align:right;
+    }
+    .capes strong{font-size:19px}
+    .metrics{display:flex;flex-direction:column;gap:14px}
+    .metric-head{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      font-size:12px;
+      margin-bottom:5px;
+    }
+    .metric-head span{color:#536273}
+    .track{
+      height:8px;
+      background:#e8edf2;
+      border-radius:99px;
+      overflow:hidden;
+    }
+    .fill{height:100%;border-radius:99px}
+    .meta{
+      margin-top:16px;
+      padding-top:13px;
+      border-top:1px solid var(--border);
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.5;
+    }
+    .ranking{padding:15px}
+    .ranking-title{
+      font-size:14px;
+      font-weight:750;
+      margin-bottom:10px;
+    }
+    .controls{
+      display:flex;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    select{
+      width:100%;
+      min-height:40px;
+      border:1px solid var(--border);
+      border-radius:9px;
+      padding:8px 10px;
+      background:#fff;
+      color:var(--text);
+      font-size:13px;
+    }
+    .ranking-list{
+      max-height:330px;
+      overflow:auto;
+      padding-right:3px;
+    }
+    .rank-item{
+      width:100%;
+      border:0;
+      background:transparent;
+      color:inherit;
+      display:grid;
+      grid-template-columns:30px 1fr auto;
+      gap:8px;
+      align-items:center;
+      text-align:left;
+      padding:8px 6px;
+      border-radius:8px;
+      cursor:pointer;
+    }
+    .rank-item:hover,.rank-item.active{background:#f1f5f9}
+    .rank-pos{font-size:11px;color:#94a3b8}
+    .rank-name{font-size:12px;font-weight:700}
+    .rank-loc{font-size:10px;color:#94a3b8;margin-top:2px}
+    .rank-score{font-size:12px;font-weight:800}
+    footer{
+      max-width:1500px;
+      margin:0 auto;
+      padding:0 18px 24px;
+      color:#64748b;
+      font-size:11px;
+      line-height:1.5;
+    }
+    .leaflet-popup-content{margin:13px 15px}
+    .popup-title{font-weight:800;font-size:15px;margin-bottom:3px}
+    .popup-score{font-size:13px;color:#475569}
+    .popup-score strong{font-size:17px;color:#172033}
+    @media(max-width:950px){
+      .layout{grid-template-columns:1fr}
+      #map{height:520px}
+    }
+    @media(max-width:600px){
+      header{padding:18px 16px}
+      .header-inner{align-items:flex-start;flex-direction:column}
+      main{padding:0 10px 20px;margin-top:10px}
+      #map{height:440px}
+      .institution{font-size:20px}
+      .headline{align-items:center}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Orientação Empreendedora nos PPGs em Administração</h1>
+      <div class="subtitle">
+        Mapa interativo dos 25 programas analisados — localização, notas CAPES e dimensões do índice
+      </div>
+    </div>
+    <div class="badge">25 PPGs • Brasil</div>
+  </div>
+</header>
+
+<main>
+  <div class="layout">
+    <section class="panel map-panel">
+      <div id="map" aria-label="Mapa interativo dos PPGs"></div>
+      <div class="map-footer">
+        <span><i class="legend-dot" style="background:var(--low)"></i>OE menor</span>
+        <span><i class="legend-dot" style="background:var(--mid)"></i>OE intermediário</span>
+        <span><i class="legend-dot" style="background:var(--high)"></i>OE maior</span>
+        <span>O tamanho do marcador representa o Indicador de OE</span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel card" id="card"></section>
+
+      <section class="panel ranking">
+        <div class="ranking-title">Ranking por Orientação Empreendedora</div>
+        <div class="controls">
+          <select id="regionFilter" aria-label="Filtrar por região">
+            <option value="Todas">Todas as regiões</option>
+            <option value="Norte">Norte</option>
+            <option value="Nordeste">Nordeste</option>
+            <option value="Centro-Oeste">Centro-Oeste</option>
+            <option value="Sudeste">Sudeste</option>
+            <option value="Sul">Sul</option>
+          </select>
+        </div>
+        <div class="ranking-list" id="rankingList"></div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  Fonte dos indicadores: dados fornecidos pelo pesquisador. MP = Mobilização de Pesquisa;
+  NC = Não Convencionalidade; CE = Colaboração com Empresas; PU = Políticas Universitárias;
+  OE = Orientação Empreendedora. A localização corresponde à cidade-sede utilizada para
+  representar geograficamente cada instituição.
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<script>
+const data = [
+  {n:"UDESC",city:"Florianópolis",st:"SC",reg:"Sul",a:12,c:4,mp:.797,nc:.797,ce:.844,pu:.743,oe:.797,lat:-27.5969,lon:-48.5495},
+  {n:"UECE",city:"Fortaleza",st:"CE",reg:"Nordeste",a:7,c:4,mp:.752,nc:.786,ce:.850,pu:.812,oe:.798,lat:-3.7437,lon:-38.5267},
+  {n:"UEM",city:"Maringá",st:"PR",reg:"Sul",a:7,c:4,mp:.612,nc:.691,ce:.728,pu:.788,oe:.700,lat:-23.4205,lon:-51.9333},
+  {n:"UFBA",city:"Salvador",st:"BA",reg:"Nordeste",a:11,c:5,mp:.591,nc:.597,ce:.643,pu:.610,oe:.609,lat:-12.9822,lon:-38.4813},
+  {n:"UFC",city:"Fortaleza",st:"CE",reg:"Nordeste",a:9,c:4,mp:.751,nc:.768,ce:.788,pu:.860,oe:.787,lat:-3.7450,lon:-38.5375},
+  {n:"UFES",city:"Vitória",st:"ES",reg:"Sudeste",a:3,c:4,mp:.611,nc:.577,ce:.730,pu:.724,oe:.651,lat:-20.3155,lon:-40.3128},
+  {n:"UFG",city:"Goiânia",st:"GO",reg:"Centro-Oeste",a:7,c:4,mp:.782,nc:.753,ce:.735,pu:.808,oe:.767,lat:-16.6799,lon:-49.2550},
+  {n:"UFLA",city:"Lavras",st:"MG",reg:"Sudeste",a:10,c:5,mp:.733,nc:.732,ce:.814,pu:.786,oe:.763,lat:-21.2450,lon:-44.9997},
+  {n:"UFMG",city:"Belo Horizonte",st:"MG",reg:"Sudeste",a:7,c:4,mp:.534,nc:.487,ce:.575,pu:.637,oe:.549,lat:-19.8697,lon:-43.9678},
+  {n:"UFMS",city:"Campo Grande",st:"MS",reg:"Centro-Oeste",a:7,c:4,mp:.656,nc:.638,ce:.690,pu:.665,oe:.660,lat:-20.4697,lon:-54.6201},
+  {n:"UFPB",city:"João Pessoa",st:"PB",reg:"Nordeste",a:10,c:5,mp:.610,nc:.684,ce:.717,pu:.666,oe:.670,lat:-7.1195,lon:-34.8450},
+  {n:"UFPE",city:"Recife",st:"PE",reg:"Nordeste",a:3,c:5,mp:.540,nc:.643,ce:.714,pu:.648,oe:.636,lat:-8.0476,lon:-34.8770},
+  {n:"UFPR",city:"Curitiba",st:"PR",reg:"Sul",a:11,c:6,mp:.613,nc:.679,ce:.758,pu:.694,oe:.685,lat:-25.4284,lon:-49.2733},
+  {n:"UFRGS",city:"Porto Alegre",st:"RS",reg:"Sul",a:13,c:6,mp:.667,nc:.681,ce:.727,pu:.670,oe:.687,lat:-30.0331,lon:-51.2300},
+  {n:"UFRJ",city:"Rio de Janeiro",st:"RJ",reg:"Sudeste",a:7,c:7,mp:.837,nc:.814,ce:.854,pu:.690,oe:.804,lat:-22.9068,lon:-43.1729},
+  {n:"UFRN",city:"Natal",st:"RN",reg:"Nordeste",a:8,c:5,mp:.688,nc:.730,ce:.750,pu:.718,oe:.722,lat:-5.7945,lon:-35.2110},
+  {n:"UFSC",city:"Florianópolis",st:"SC",reg:"Sul",a:11,c:4,mp:.647,nc:.705,ce:.751,pu:.712,oe:.703,lat:-27.6000,lon:-48.5200},
+  {n:"UFSM",city:"Santa Maria",st:"RS",reg:"Sul",a:3,c:4,mp:.532,nc:.512,ce:.468,pu:.467,oe:.497,lat:-29.6868,lon:-53.8149},
+  {n:"UFU",city:"Uberlândia",st:"MG",reg:"Sudeste",a:5,c:5,mp:.733,nc:.729,ce:.771,pu:.834,oe:.761,lat:-18.9186,lon:-48.2772},
+  {n:"UFV",city:"Viçosa",st:"MG",reg:"Sudeste",a:11,c:5,mp:.734,nc:.724,ce:.807,pu:.751,oe:.762,lat:-20.7549,lon:-42.8783},
+  {n:"UnB",city:"Brasília",st:"DF",reg:"Centro-Oeste",a:5,c:5,mp:.862,nc:.804,ce:.852,pu:.829,oe:.834,lat:-15.7939,lon:-47.8828},
+  {n:"UNICAMP",city:"Campinas",st:"SP",reg:"Sudeste",a:10,c:5,mp:.719,nc:.643,ce:.774,pu:.689,oe:.702,lat:-22.9056,lon:-47.0608},
+  {n:"USCS",city:"São Caetano do Sul",st:"SP",reg:"Sudeste",a:8,c:5,mp:.699,nc:.783,ce:.830,pu:.796,oe:.777,lat:-23.6229,lon:-46.5548},
+  {n:"USP",city:"São Paulo",st:"SP",reg:"Sudeste",a:20,c:7,mp:.707,nc:.696,ce:.765,pu:.723,oe:.721,lat:-23.5614,lon:-46.7300},
+  {n:"USP-RP",city:"Ribeirão Preto",st:"SP",reg:"Sudeste",a:4,c:6,mp:.899,nc:.906,ce:.899,pu:.850,oe:.891,lat:-21.1767,lon:-47.8208}
+];
+
+const sorted = [...data].sort((a,b)=>b.oe-a.oe);
+sorted.forEach((d,i)=>d.rank=i+1);
+
+const fmt = x => x.toFixed(3).replace(".", ",");
+const pct = x => Math.max(0,Math.min(100,x*100));
+
+function markerColor(v){
+  if(v >= .78) return "#9a6a3a";
+  if(v >= .70) return "#4f83a8";
+  return "#94a3b8";
+}
+function markerRadius(v){
+  return 7 + (v-.49)*18;
+}
+
+const map = L.map("map", {scrollWheelZoom:true}).setView([-15.8,-47.9],4.2);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+  maxZoom:19,
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+const markers = {};
+const markerLayer = L.layerGroup().addTo(map);
+
+function popupHTML(d){
+  return `
+    <div class="popup-title">${d.n}</div>
+    <div>${d.city} — ${d.st}</div>
+    <div class="popup-score">Indicador OE: <strong>${fmt(d.oe)}</strong></div>
+  `;
+}
+
+data.forEach(d=>{
+  const marker = L.circleMarker([d.lat,d.lon],{
+    radius:markerRadius(d.oe),
+    color:"#ffffff",
+    weight:2,
+    fillColor:markerColor(d.oe),
+    fillOpacity:.9
+  }).addTo(markerLayer);
+
+  marker.bindPopup(popupHTML(d));
+  marker.on("click",()=>selectInstitution(d.n));
+  markers[d.n]=marker;
+});
+
+function cardHTML(d){
+  const dim = [
+    ["Mobilização de Pesquisa",d.mp,"#4f83a8"],
+    ["Não Convencionalidade",d.nc,"#9a6a3a"],
+    ["Colaboração com Empresas",d.ce,"#9a6a3a"],
+    ["Políticas Universitárias",d.pu,"#4f83a8"]
+  ];
+  return `
+    <div class="card-head">
+      <div>
+        <div class="institution">${d.n}</div>
+        <div class="location">${d.city} — ${d.st} • ${d.reg}</div>
+      </div>
+      <div class="rank">${d.rank}º / 25</div>
+    </div>
+
+    <div class="headline">
+      <div>
+        <div class="label">Indicador de Orientação Empreendedora</div>
+        <div class="oe">${fmt(d.oe)}</div>
+      </div>
+      <div class="capes">
+        Nota CAPES<br><strong>${d.c}</strong>
+      </div>
+    </div>
+
+    <div class="metrics">
+      ${dim.map(x=>`
+        <div>
+          <div class="metric-head">
+            <span>${x[0]}</span>
+            <strong>${fmt(x[1])}</strong>
+          </div>
+          <div class="track">
+            <div class="fill" style="width:${pct(x[1])}%;background:${x[2]}"></div>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="meta">
+      <strong>Amostra:</strong> ${d.a} respondentes<br>
+      <strong>Indicador OE:</strong> síntese das quatro dimensões do índice.
+    </div>
+  `;
+}
+
+function selectInstitution(name){
+  const d=data.find(x=>x.n===name);
+  if(!d)return;
+
+  document.getElementById("card").innerHTML=cardHTML(d);
+
+  document.querySelectorAll(".rank-item").forEach(el=>{
+    el.classList.toggle("active",el.dataset.name===name);
+  });
+
+  Object.entries(markers).forEach(([key,m])=>{
+    m.setStyle({
+      weight:key===name?4:2,
+      radius:key===name?markerRadius(d.oe)+3:markerRadius(data.find(x=>x.n===key).oe)
+    });
+  });
+
+  map.panTo([d.lat,d.lon],{animate:true,duration:.5});
+}
+
+function renderRanking(){
+  const region=document.getElementById("regionFilter").value;
+  const rows=sorted.filter(d=>region==="Todas"||d.reg===region);
+  const list=document.getElementById("rankingList");
+
+  list.innerHTML=rows.map(d=>`
+    <button class="rank-item" data-name="${d.n}">
+      <span class="rank-pos">${d.rank}º</span>
+      <span>
+        <span class="rank-name">${d.n}</span>
+        <span class="rank-loc">${d.city} • ${d.reg}</span>
+      </span>
+      <span class="rank-score">${fmt(d.oe)}</span>
+    </button>
+  `).join("");
+
+  list.querySelectorAll(".rank-item").forEach(btn=>{
+    btn.addEventListener("click",()=>selectInstitution(btn.dataset.name));
+  });
+}
+
+document.getElementById("regionFilter").addEventListener("change",renderRanking);
+
+renderRanking();
+selectInstitution("USP-RP");
+</script>
+</body>
+</html>
