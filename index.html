@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Índice de Orientação Empreendedora — PPGs em Administração</title>
+<title>Mapa do Índice de Orientação Empreendedora na Pós-Graduação (IOEPG)</title>
 
 <!-- Leaflet: sem integrity para evitar bloqueio por hash incorreto no GitHub Pages -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -29,6 +29,25 @@ button,select{font-family:Arial,sans-serif}
 .eyebrow{font:700 11px Arial,sans-serif;text-transform:uppercase;letter-spacing:.14em;color:var(--gold)}
 h1{font-size:30px;line-height:1.12;margin:7px 0;color:var(--navy)}
 .project{font-size:14px;color:var(--muted);max-width:1000px;line-height:1.5}
+.methodology-link{
+  margin-top:10px;
+  font:12px/1.45 Arial,sans-serif;
+  color:var(--muted);
+}
+
+.methodology-link strong{
+  color:var(--navy);
+}
+
+.methodology-link a{
+  color:var(--blue);
+  font-weight:700;
+  text-decoration:underline;
+}
+
+.methodology-link a:hover{
+  color:var(--navy);
+}
 .layout{max-width:1500px;margin:auto;padding:0 24px 28px;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(360px,.75fr);gap:18px}
 .panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px rgba(23,50,77,.06)}
 .map-wrap{padding:10px}.map{height:650px;border-radius:10px;overflow:hidden}
@@ -100,7 +119,12 @@ h1{font-size:30px;line-height:1.12;margin:7px 0;color:var(--navy)}
   <div class="project-head">
     <div>
       <div class="eyebrow">Projeto de Pesquisa • Pós-Graduação Stricto Sensu</div>
-      <h1>Orientação Empreendedora em Programas de Pós-Graduação em Administração de Universidades Públicas no Brasil</h1>
+      <h1>Mapa do Índice de Orientação Empreendedora na Pós-Graduação (IOEPG)</h1>
+     <div class="methodology-link">
+  <strong>Notas Metodológicas:</strong>
+  <a href="https://1drv.ms/b/c/83b5bdb9b6c38da0/IQBYt3Y9xggfQbowPaPolfGpAQF8gVysgxJMRetY8-S9JEc?e=bh34aI"
+     target="_blank" rel="noopener noreferrer">Notas Metodológicas_IOEPG.pdf</a>
+      </div>
       <div class="project">
         Mapa interativo dos 25 PPGs analisados, apresentando a distribuição geográfica e o desempenho
         nas dimensões de Mobilização de Pesquisa, Não Convencionalidade, Colaboração com Empresas e
@@ -193,7 +217,7 @@ const data=[
 ["UFSC","Florianópolis","SC","Sul",11,4,.647,.705,.751,.712,.703,-27.6000,-48.5200,0.025,-0.025],
 ["UFSM","Santa Maria","RS","Sul",3,4,.532,.512,.468,.467,.497,-29.6868,-53.8149,0,0],
 ["UFU","Uberlândia","MG","Sudeste",5,5,.733,.729,.771,.834,.761,-18.9186,-48.2772,0,0],
-["UFV","Viçosa","MG","Sudeste",11,5,.734,.724,.807,.751,.762,-20.7549,-42.8783,0,0],
+["UFV","Viçosa","MG","Sudeste",11,5,.734,.724,.807,.751,.752,-20.7549,-42.8783,0,0],
 ["UnB","Brasília","DF","Centro-Oeste",5,5,.862,.804,.852,.829,.834,-15.7939,-47.8828,0,0],
 ["UNICAMP","Campinas","SP","Sudeste",10,5,.719,.643,.774,.689,.702,-22.9056,-47.0608,0,0],
 ["USCS","São Caetano do Sul","SP","Sudeste",8,5,.699,.783,.830,.796,.777,-23.6229,-46.5548,0,0],
