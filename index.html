@@ -263,7 +263,7 @@ data.forEach(d=>{
     <div class="popup-title">${d.n}</div>
     <div>${d.city} — ${d.st}</div>
     <div class="popup-score">Indicador OE: <strong>${fmt(d.oe)}</strong></div>
-    <div>CAPES: ${d.c} • Amostra: ${d.a}</div>
+    <div>CAPES: ${d.c}</div>
   `);
 
   marker.on("click",()=>select(d.n));
@@ -294,7 +294,6 @@ function card(d){
    </div>`).join("")}
  </div>
  <div class="meta">
-   <b>Amostra:</b> ${d.a} respondentes<br>
    <b>Posição:</b> ${d.rank}º entre os 25 PPGs<br>
    <b>Nota CAPES:</b> ${d.c}
  </div>`;
